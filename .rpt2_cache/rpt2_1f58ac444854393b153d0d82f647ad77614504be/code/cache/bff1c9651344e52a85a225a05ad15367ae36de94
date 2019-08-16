@@ -1,1 +1,0 @@
-{"code":"import Game from \"./Game\";\r\nexport default class Main {\r\n    constructor() {\r\n        var a = new Game;\r\n        console.log(a.test(232));\r\n    }\r\n}\r\n","references":["D:/myCode/res_manager_electronjs/web/src/Game.ts"]}

@@ -1,1 +1,0 @@
-{"code":"export default class game {\r\n    constructor() {\r\n    }\r\n    test(e) {\r\n        return e;\r\n    }\r\n}\r\n","references":[]}
