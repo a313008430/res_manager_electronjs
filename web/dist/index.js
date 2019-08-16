@@ -1,24 +1,2 @@
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global = global || self, global.main = factory());
-}(this, function () { 'use strict';
-
-    class Game {
-        constructor() {
-        }
-        test(e) {
-            return e;
-        }
-    }
-
-    class Main {
-        constructor() {
-            var a = new Game;
-            console.log(a.test(232));
-        }
-    }
-
-    return Main;
-
-}));
+!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):(e=e||self,e.game=n())}(this,function(){"use strict";class e{constructor(){console.log(22)}}return new e,e});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzIjpbXSwic291cmNlc0NvbnRlbnQiOltdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiIn0=

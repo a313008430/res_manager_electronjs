@@ -1,8 +1,10 @@
-import Game from "./Game";
-
+/**
+ * 渲染逻辑入口
+ */
 export default class Main {
     constructor() {
-        var a = new Game;
-        console.log(a.test(232))
+        console.log(22)
     }
 }
+
+new Main();

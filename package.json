@@ -20,6 +20,7 @@
     "electron": "^6.0.2",
     "rollup": "^1.19.4",
     "rollup-plugin-typescript2": "^0.22.1",
+    "rollup-plugin-uglify-es": "^0.0.1",
     "typescript": "^3.5.3"
   }
 }
