@@ -1,0 +1,1 @@
+{"code":"export default class main {\r\n    constructor() {\r\n    }\r\n}\r\nnew main();\r\n","references":[]}

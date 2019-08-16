@@ -1,0 +1,25 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "资源管理",
+  "main": "app/main.js",
+  "scripts": {
+    "start": "rollup -c && electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a313008430/res_manager_electronjs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/a313008430/res_manager_electronjs/issues"
+  },
+  "homepage": "https://github.com/a313008430/res_manager_electronjs#readme",
+  "devDependencies": {
+    "electron": "^6.0.2",
+    "rollup": "^1.19.4",
+    "rollup-plugin-typescript2": "^0.22.1",
+    "typescript": "^3.5.3"
+  }
+}

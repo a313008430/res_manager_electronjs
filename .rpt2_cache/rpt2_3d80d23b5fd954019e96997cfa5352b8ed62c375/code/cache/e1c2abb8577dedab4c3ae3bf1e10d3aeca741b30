@@ -1,0 +1,1 @@
+{"code":"import game from \"./game\";\r\nclass main {\r\n    constructor() {\r\n        var c = new game;\r\n        var a = 2;\r\n        c.test(2);\r\n    }\r\n}\r\nnew main();\r\n","references":["D:/myCode/res_manager_electronjs/web/src/game.ts"]}
