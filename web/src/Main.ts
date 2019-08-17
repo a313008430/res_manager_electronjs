@@ -1,10 +1,10 @@
+import ViewLogic from "./ViewLogic";
 /**
  * 渲染逻辑入口
  */
 export default class Main {
     constructor() {
-        console.log(22)
+        new ViewLogic();
     }
 }
-
-new Main();
+new Main()

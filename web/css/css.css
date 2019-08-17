@@ -1,5 +1,5 @@
 html {
-    background: #f5f5f5;
+    background: #fff;
 }
 
 html,
@@ -7,41 +7,134 @@ body {
     height: 100%;
 }
 
+.flex{
+    display: flex;
+}
+
+.g1{
+    flex-grow: 1;
+}
+.g0{
+    flex-grow: 0;
+}
+
 .outer {
-    width: 100%;
+    display: flex;
     height: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    /* justify-content: flex-start; */
-    /* align-items: stretch;
-    align-content: stretch; */
-    background: #FFD54F;
-    padding: 3px;
+    flex-direction: column;
+    padding: 5px;
+}
+.column_me {
+    flex-direction: column;
 }
 
-.outer .view {
+.outer>.view {
+    height: 0px;
     width: 100%;
-    /* order: 0; */
+    flex-grow: 1;
+    margin-bottom: 5px;
+}
+
+.outer>.view:last-child {
+    margin-bottom: 0px;
+}
+
+.outer>.topView {
+    height: 26px;
     flex-grow: 0;
-    /* flex-shrink: 1;
-    flex-basis: auto;
-    align-self: auto; */
-    margin: 3px;
+    background: none;
+    box-shadow: none;
+    line-height: 26px;
+    margin-bottom: 10px;
+}
+
+.outer>.topView>div:nth-child(1){
+    width: 64px;;
+}
+
+.outer>.topView div:nth-child(2){
+    height: 26px;
+    outline:none;
+    border: 1px solid #dbdbdb;
+    text-indent: 5px;
+    border-radius: 2px;
+    box-sizing: content-box;
+}
+.outer>.topView div:nth-child(3){
+   display: flex;
+    text-align: right;
+    width: 80px;
+    align-items: center;
+    justify-content: flex-end;
+}
+.outer>.topView div:nth-child(3) a{
+  
+}
+.centerView{
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .1);
+}
+
+.centerView dd,.centerView .list-title{
+    font-size: 14px;
     display: flex;
+    border-bottom: 1px solid #f7f7f7;
+    transition: 0.3s ease all;
+    line-height: 24px;
+}
+.centerView dd{
+    height: 27px;
+}
+.centerView dd:hover{
+    border-bottom: 1px solid #fff;
+    background: #c8fff7;
 }
 
-.centerView {
-    background: red;
-    flex-grow: 0;
+.centerView .list-title{
+    width: 100%;
+    height: 30px;
+    background: #fbfbfb;
+}
+.centerView dl{
+    width: 100%;
+    display: block;
+    max-height: 100%;
+    overflow: auto;
+}
+#rootList{height: 0px;}
+
+/* 注释 */
+.annotation{width: 150px;}
+.annotation input{float: left;}
+
+.centerView .list-title>div, .centerView dd>div{
+    border-right: 1px solid #f7f7f7;
+    text-indent: 5px;
+    outline: none;
+}
+.centerView dd>div{
+    color: #828282
+}
+
+.centerView dd:hover>div{
+    border-right: 1px solid #b2e6df;
+    color: #000;
+}
+
+.resName{width: 150px;}
+.resType{width: 100px;}
+.resType select{width: 100px;}
+
+.leftView{
     width: 150px;
-    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .26);
-    background: #fff;
-}
-
-.centerView:nth-child(1) {
     margin-right: 5px;
 }
 
-.centerView:nth-child(2) {
-    flex-grow: 1;
+#previewImg{
+    max-width: 100%;
 }
+
+.groupName{width: 100%;outline: none;}
+.leftView .tag{padding-left: 0;}
+.size_me{width: 50px;}
+
+/* .root-list{height: 250px;min-height: 250px} */

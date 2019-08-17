@@ -5,6 +5,7 @@ import uglify from "rollup-plugin-uglify-es";//代码混淆库  这个可以编�
 
 export default {
     input: './web/src/Main.ts',
+    // external:['fs'],
     plugins: [
         // typescript({ lib: ["es5", "es6", "dom"], target: "esnext", sourceMap: true }),
         typescript({ tsconfig: "./tsconfig.json" }),
@@ -22,5 +23,8 @@ export default {
         sourcemap: 'inline',
         format: 'umd',//
         name: 'game',//默认可以不暴露出去，默认也可以不加export
+        globals:{
+            'fs':"fs",              //告诉rollup 全局变量THREE即是three'
+        }
     }
 }
