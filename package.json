@@ -4,7 +4,8 @@
   "description": "资源管理",
   "main": "app/main.js",
   "scripts": {
-    "start": "rollup -c && electron ."
+    "start": "rollup -c && electron .",
+    "w": "rollup -cw"
   },
   "repository": {
     "type": "git",

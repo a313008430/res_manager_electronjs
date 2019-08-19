@@ -12,12 +12,12 @@
     <div class="outer">
         <div class="view topView flex">
             <div>Root</div>
-            <div id="rootNode" class="g1 is-small" contenteditable="true"></div>
+            <div id="rootNode" class="g1 is-small"></div>
             <div class="g0">
                 <div class="field">
                     <div class="file is-small is-primary">
                         <label class="file-label">
-                            <input id="browse" class="file-input" type="file" name="resume">
+                            <input id="browse" class="file-input" accept="application/json" type="file" name="resume">
                             <span class="file-cta">
                                 <span class="file-label">
                                     Browse
@@ -31,6 +31,7 @@
         </div>
         <div class="view flex g0">
             <div class="centerView g0 leftView">
+                <!-- 预览图 -->
                 <img id="previewImg" src="" alt="">
             </div>
             <div class="centerView g1 flex column_me">
@@ -40,29 +41,34 @@
                     <div class="g1">path</div>
                     <div class="g0 size_me">size</div>
                 </div>
+                <!-- 根目录里面的资源列表 -->
                 <dl id="rootList" class=" flex g1">
                 </dl>
             </div>
         </div>
         <div class="view flex g0">
             <div class="centerView leftView g0">
-                <dl>
-                    <dt>
-                        <div class="g0 resName">Group name</div>
-                        <a class="button is-info is-focused is-small">Add</a>
-                    </dt>
-                    <dd class="tag g1 is-white"><input class="input is-small groupName" type="text"
-                            placeholder="Group name"><button class="delete is-small"></button></dd>
+                <!-- 资源组 -->
+                <div class="list-title flex g0">
+                    <div class="g0 resName">Group name</div>
+                    <a class="button is-info is-focused is-small" id="addGroupBtn">Add</a>
+                </div>
+                <dl id='groupListNode'>
+                    <dd class="tag g1 is-white">
+                        <input disabled class="input is-small groupName" type="text" placeholder="Group name">
+                        <button class="delete is-small"></button>
+                    </dd>
                 </dl>
             </div>
             <div class="centerView g1 column_me">
+                <!-- 保存的资源列表 -->
                 <div class="list-title flex g0">
                     <div class="g0 resName">Res name</div>
                     <div class="g0 resType">Type</div>
                     <div class="g1">path</div>
                     <div class="g0 annotation">Annotations</div>
                 </div>
-                <dl class="g1">
+                <dl class="g1" id="myListNode">
                     <dd>
                         <div class="g0 resName"></div>
                         <div class="g0 resType select is-small">
