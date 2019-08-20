@@ -47,20 +47,20 @@
             </div>
         </div>
         <div class="view flex g0">
-            <div class="centerView leftView g0">
+            <div class="centerView leftView g0 column_me flex">
                 <!-- 资源组 -->
                 <div class="list-title flex g0">
                     <div class="g0 resName">Group name</div>
                     <a class="button is-info is-focused is-small" id="addGroupBtn">Add</a>
                 </div>
                 <dl id='groupListNode'>
-                    <dd class="tag g1 is-white">
-                        <input disabled class="input is-small groupName" type="text" placeholder="Group name">
+                    <dd class="tag g1 is-white cur">
+                        <input  class="input is-small groupName" type="text" placeholder="Group name">
                         <button class="delete is-small"></button>
                     </dd>
                 </dl>
             </div>
-            <div class="centerView g1 column_me">
+            <div class="centerView g1 flex column_me">
                 <!-- 保存的资源列表 -->
                 <div class="list-title flex g0">
                     <div class="g0 resName">Res name</div>
@@ -76,7 +76,7 @@
                                 <option>type</option>
                                 <option>image</option>
                                 <option>prefab</option>
-                                <option>mp3</option>
+                                <option selected>mp3</option>
                             </select>
                         </div>
                         <div class="g1"></div>
@@ -84,17 +84,17 @@
                             <input class="input is-small" type="text" placeholder="注释">
                         </div>
                     </dd>
-
                 </dl>
             </div>
         </div>
     </div>
     <script>
         window.fs = require('fs');//和node交互的甩的模块在这里需要注册一下
+        window.$ = window.JQuery = require('./web/dist/jquery.min.js');//添加第三方库都需要这样引用进来
     </script>
     <script src="./web/dist/index.js"></script>
     <script>
-        // new game();
+        new game();
     </script>
 </body>
 

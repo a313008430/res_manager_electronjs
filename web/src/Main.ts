@@ -7,4 +7,4 @@ export default class Main {
         new ViewLogic();
     }
 }
-new Main()
+// new Main()

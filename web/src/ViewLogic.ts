@@ -8,39 +8,37 @@ export default class ViewLogic {
 
     /** 上传按钮 */
     private browseBtn: HTMLInputElement;
-    /** 组列表节点 */
-    private groupListNode: HTMLDListElement;
+    /** 组名称列表节点 */
+    private groupListNode: JQuery<HTMLElement>;
     /** 添加组按钮 */
-    private addGroupBtn: HTMLElement;
+    private addGroupBtn: JQuery<HTMLElement>;
     /** 我的数据列表 */
-    private myListNode: HTMLDListElement;
+    private myListNode: JQuery<HTMLElement>;
+    /** 根目录列表节点 */
+    private rootList: JQuery<HTMLElement>;
+
 
     /** 数据管理 */
     private dataManager: DataManager;
-    /** 根目录列表 */
-    private rootResList: Map<string, {
-        /** 路径 */
-        path: string,
-        /** 名称 */
-        name: string,
-        /** 类型 */
-        type: string,
-        /** 大小 */
-        size: number
-    }>;
+    /** 当前选择的分组id */
+    private curGroupId: number;
+    /** 默认组 */
+    private initGroup: string;
+
 
     constructor() {
 
-        this.rootResList = new Map();
+        this.initGroup = 'init';
 
         this.dataManager = new DataManager();
 
         this.browseBtn = document.querySelector('#browse') as HTMLInputElement;
-        this.groupListNode = document.querySelector('#groupListNode') as HTMLDListElement;
-        this.addGroupBtn = document.querySelector('#addGroupBtn') as HTMLDListElement;
-        this.myListNode = document.querySelector('#myListNode') as HTMLDListElement;
+        this.groupListNode = $('#groupListNode');
+        this.addGroupBtn = $('#addGroupBtn');
+        this.myListNode = $('#myListNode');
+        this.rootList = $('#rootList');
 
-        //点击事件
+        //添加根目录资源点击事件
         this.browseBtn.addEventListener('change', (e: Event) => {
 
             let file: any = (this.browseBtn.files as FileList).item(0) as File;
@@ -69,9 +67,8 @@ export default class ViewLogic {
 
                     } else {
                         console.log('json文件为空');
-                        this.addGroup('init', false);
+                        this.addGroup(this.initGroup, false);
                     }
-
 
                 } else {
                     alert('root path is error!')
@@ -86,10 +83,97 @@ export default class ViewLogic {
 
 
         //添加组
-        this.addGroupBtn.addEventListener('click', ()=>{
-           var a =  prompt("请输入您的名字","Bill Gates");
-           console.log(a)
+        this.addGroupBtn.on('click', () => {
+            this.addGroup('Group name' + this.dataManager.groupList.size, true);
+            this.groupListNode.find('input').focus();
         })
+
+        // 组名称点击事件
+        this.groupListNode.on('click', 'dd', (e) => {
+            if (e.currentTarget) {
+                $(e.currentTarget).addClass('cur').siblings().removeClass('cur');
+                let id = Number(e.currentTarget.getAttribute('data-id'));
+                if (this.curGroupId !== id) {
+                    this.drawByGroupIdList(id);
+                    this.curGroupId = id;
+                }
+            }
+        })
+        //修改名称双击事件
+        this.groupListNode.on('dblclick', '.replaceGroupName', (e) => {
+            if (e.currentTarget) {
+                let input = $(e.currentTarget).find('input');
+                input.removeAttr('disabled');
+                input.focus();
+                input.on('blur',(e)=>{
+                    $(e.currentTarget).attr('disabled','disabled');
+                    $(e.currentTarget).off();
+                    let val:any = input.val();
+                    if(val.match(/^[A-z]/) && !val.match(/[^A-z0-9\_]/) ){
+                      
+                        console.log('1231232可以开始')
+
+                    }else{
+                        alert('只能字母开头，特殊字符只能为_，不能包含其它');
+                    }
+                    console.log(input.val())
+                })
+            }
+        })
+
+        //根目录列表点击事件==>双击
+        this.rootList.on('dblclick', 'dd', (e) => {
+            if (e.currentTarget) {
+                this.addDataList(e.currentTarget.getAttribute('data-id'));
+            }
+        })
+
+    }
+
+    /**
+     * 添加一条数据到数据列表
+     * @param id 资源id
+     */
+    private addDataList(id: string) {
+        let rootData = this.dataManager.rootResList.get(id);//获取根目录数据
+        if (rootData) {
+            let obj = this.dataManager.groupList.get(this.curGroupId);
+
+            if (obj && !obj.get(id)) {
+                obj.set(id, {
+                    resName: rootData.name,
+                    type: rootData.type,
+                    path: rootData.path
+                });
+                this.drawItem(obj.get(id)!);
+            }
+
+        }
+    }
+
+    /**
+     * 渲染一条数据到前端
+     */
+    private drawItem(obj: resObj) {
+        console.log(obj)
+        console.log(this.dataManager.allType)
+
+        //绑定类型
+        let typeStr: string = '';
+        this.dataManager.allType.forEach((v) => {
+            typeStr += `<option ${obj.type === v ? 'selected' : ''}>${v}</option>`;
+        });
+
+        this.myListNode.prepend(`<dd data-id=${obj.path}>
+        <div class="g0 resName">${obj.resName}</div>
+        <div class="g0 resType select is-small">
+            <select>${typeStr}</select>
+        </div>
+        <div class="g1">${obj.path}</div>
+        <div class="g0 annotation">
+            <input class="input is-small" type="text" value="${obj.note ? obj.note : ''}" placeholder="注释">
+        </div>
+    </dd>`);
     }
 
     /**
@@ -98,27 +182,45 @@ export default class ViewLogic {
      * @param type 是否可修改和删除 true 可修改 false 不可修改
      */
     private addGroup(name: string, type: boolean) {
-        if (this.dataManager.groupList.has(name)) {
-            alert('分组已经存在');
+        if (this.dataManager.getGroupName(name)) {
+            alert('分组名称已经存在');
             return;
         }
-        this.dataManager.addGroup(name);
 
-        let node = document.createElement('DD');
-        node.className = "tag g1 is-white";
-        node.innerHTML = `<input ${type ? '' : 'disabled'} class="input is-small groupName" type="text" placeholder="Group name" value=${name}>
-        ${type ? ' <button class="delete is-small"></button>' : ''}`;
+        this.curGroupId = this.dataManager.addGroup(name);
 
-        this.groupListNode.appendChild(node);
+        this.groupListNode.find('dd').removeClass('cur');
+
+        this.groupListNode.append(`<dd data-id=${this.curGroupId} class="tag g1 is-white cur ${type ? 'replaceGroupName' : ''}">
+        <input  disabled class="input is-small groupName" type="text" placeholder="Group name" value="${name}">
+        ${type ? ' <button class="delete is-small"></button>' : ''}
+    </dd>`);
+
+        this.drawByGroupIdList(this.curGroupId);
+    }
+
+    /**
+     * 根据组数据渲染
+     * @param id 组id
+     */
+    private drawByGroupIdList(id: number) {
+        let list = this.dataManager.groupList.get(id);
+        if (list) {
+            this.myListNode.html('');
+            list.forEach((val) => {
+                this.drawItem(val);
+            })
+            console.log(list)
+        }
     }
 
     /**
      * 清除列表初始化等
      */
     private clear() {
-        this.rootResList.clear();
-        this.groupListNode.innerHTML = '';
-        this.myListNode.innerHTML = '';
+        this.dataManager.rootResList.clear();
+        this.groupListNode.html('');
+        this.myListNode.html('');
     }
 
     /**
@@ -134,25 +236,20 @@ export default class ViewLogic {
      * 渲染根文件所有资源
      */
     private drawRootList() {
-        console.log(this.rootResList)
+        console.log(this.dataManager.rootResList)
         let html = '',
-            list = this.rootResList;
+            list = this.dataManager.rootResList;
 
         list.forEach((val, key) => {
             html += `<dd data-id=${key} data-type=${val.type}>
                 <div class="g0 resName">${val.name}</div>
-                <div class="g0 resType select is-small">
-                    <select disabled>
-                        <option>${val.type}</option>
-                    </select>
-                </div>
+                <div class="g0 resType">${val.type}</div>
                 <div class="g1">${this.dataManager.root + val.path} <a class="delete is-small"></a></div>
                 <div class="g0 size_me">${this.convertFileSize(val.size)}</div>
             </dd>`
         })
 
-        let rootListNode = document.querySelector('#rootList') as HTMLDivElement;
-        rootListNode.innerHTML = html;
+        this.rootList.html(html);
     }
 
     /**
@@ -175,7 +272,7 @@ export default class ViewLogic {
                     this.dataManager.allType.add(name[1]);//重复一直添加类型 保证类型唯一性
 
                     let myPath = (path + '/' + files[x]).replace(this.dataManager.root + '', '');
-                    this.rootResList.set(myPath, {
+                    this.dataManager.rootResList.set(myPath, {
                         name: name.join('_'),
                         path: myPath,
                         type: name[1],

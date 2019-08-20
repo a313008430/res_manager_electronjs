@@ -87,6 +87,7 @@ body {
 .centerView dd:hover{
     border-bottom: 1px solid #fff;
     background: #c8fff7;
+    cursor: pointer;
 }
 
 .centerView .list-title{
@@ -138,3 +139,4 @@ body {
 .size_me{width: 100px;}
 
 /* .root-list{height: 250px;min-height: 250px} */
+#groupListNode .cur{background: #00d1b2}

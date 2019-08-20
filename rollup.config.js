@@ -25,6 +25,7 @@ export default {
         name: 'game',//默认可以不暴露出去，默认也可以不加export
         globals:{
             'fs':"fs",              //告诉rollup 全局变量THREE即是three'
+            
         }
     }
 }
