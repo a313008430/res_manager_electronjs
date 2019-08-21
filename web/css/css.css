@@ -140,3 +140,7 @@ body {
 
 /* .root-list{height: 250px;min-height: 250px} */
 #groupListNode .cur{background: #00d1b2}
+
+.hintView{width: 80%;height: 40px;text-align: center;position: absolute;left: 15%;right: 15%;background: rgba(0,0,0,0.2);top: 50%;
+color: red;border-radius: 3px;display: none;font-size: 26px;
+}

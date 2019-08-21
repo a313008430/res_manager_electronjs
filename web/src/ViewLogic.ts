@@ -24,6 +24,8 @@ export default class ViewLogic {
     private curGroupId: number;
     /** 默认组 */
     private initGroup: string;
+    /** hint定时器 */
+    private hintTime: any;
 
 
     constructor() {
@@ -84,7 +86,7 @@ export default class ViewLogic {
 
         //添加组
         this.addGroupBtn.on('click', () => {
-            this.addGroup('Group name' + this.dataManager.groupList.size, true);
+            this.addGroup('GroupName' + this.dataManager.groupList.size, true);
             this.groupListNode.find('input').focus();
         })
 
@@ -100,25 +102,29 @@ export default class ViewLogic {
             }
         })
         //修改名称双击事件
+        let curVal: any;
         this.groupListNode.on('dblclick', '.replaceGroupName', (e) => {
             if (e.currentTarget) {
                 let input = $(e.currentTarget).find('input');
-                input.removeAttr('disabled');
+                input.prop('disabled', '');
                 input.focus();
-                input.on('blur',(e)=>{
-                    $(e.currentTarget).attr('disabled','disabled');
-                    $(e.currentTarget).off();
-                    let val:any = input.val();
-                    if(val.match(/^[A-z]/) && !val.match(/[^A-z0-9\_]/) ){
-                      
-                        console.log('1231232可以开始')
+                curVal = input.val();
 
-                    }else{
-                        alert('只能字母开头，特殊字符只能为_，不能包含其它');
-                    }
-                    console.log(input.val())
-                })
             }
+        })
+
+        this.groupListNode.on('focusout blur', 'input', (e) => {
+            $(e.currentTarget).attr('disabled', 'disabled');
+            // $(e.currentTarget).off();
+            let val: any = $(e.currentTarget).val();
+            if (val.match(/^[A-z]/) && !val.match(/[^A-z0-9\_]/)) {
+                console.log('1231232可以开始')
+
+            } else {
+                $(e.currentTarget).val(curVal);
+                this.hint('内容必须以字母开头，除了_不可以有其它特殊字符!');
+            }
+            console.log($(e.currentTarget).val())
         })
 
         //根目录列表点击事件==>双击
@@ -155,9 +161,6 @@ export default class ViewLogic {
      * 渲染一条数据到前端
      */
     private drawItem(obj: resObj) {
-        console.log(obj)
-        console.log(this.dataManager.allType)
-
         //绑定类型
         let typeStr: string = '';
         this.dataManager.allType.forEach((v) => {
@@ -293,5 +296,18 @@ export default class ViewLogic {
             size = size / 1000;
             return size.toFixed(2) + 'MB';
         }
+    }
+
+    /**
+     * 提示
+     */
+    private hint(str: string) {
+        let hintView = $('#hintView');
+        hintView.show();
+        hintView.text(str);
+        if (this.hintTime) clearTimeout(this.hintTime);
+        this.hintTime = setTimeout(() => {
+            hintView.fadeOut(300);
+        }, 2000)
     }
 }
