@@ -38,7 +38,13 @@
                 <div class="list-title flex g0">
                     <div class="g0 resName">Res name</div>
                     <div class="g0 resType">Type</div>
-                    <div class="g1">path</div>
+                    <div class="g1">path
+                        <div class="select is-small">
+                            <select id="dirSelect">
+                                <option selected>All</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="g0 size_me">size</div>
                 </div>
                 <!-- 根目录里面的资源列表 -->
@@ -55,7 +61,7 @@
                 </div>
                 <dl id='groupListNode'>
                     <dd class="tag g1 is-white cur">
-                        <input  class="input is-small groupName" type="text" placeholder="Group name">
+                        <input class="input is-small groupName" type="text" placeholder="Group name">
                         <button class="delete is-small"></button>
                     </dd>
                 </dl>

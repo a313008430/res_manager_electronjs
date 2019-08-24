@@ -26,9 +26,12 @@ export default class ViewLogic {
     private initGroup: string;
     /** hint定时器 */
     private hintTime: any;
+    /** 组递增id */
+    private groupId: number;
 
 
     constructor() {
+        this.groupId = 1;
 
         this.initGroup = 'init';
 
@@ -86,8 +89,25 @@ export default class ViewLogic {
 
         //添加组
         this.addGroupBtn.on('click', () => {
-            this.addGroup('GroupName' + this.dataManager.groupList.size, true);
+            this.addGroup('GroupName' + this.groupId, true);
             this.groupListNode.find('input').focus();
+        })
+
+
+        //删除一个组
+        this.groupListNode.on('click', '.delete', (e) => {
+            e.stopPropagation();
+            let id = Number(e.currentTarget.getAttribute('data-id'));
+            this.dataManager.groupNameList.delete(id);
+            this.dataManager.groupList.delete(id);
+            $(e.currentTarget).parents('dd').remove();
+            if (this.curGroupId === id) {
+                this.groupListNode.find('dd').eq(0).addClass('cur').siblings().removeClass('cur');
+                this.drawByGroupIdList(1);
+                this.showSelected();
+
+            }
+
         })
 
         // 组名称点击事件
@@ -98,6 +118,7 @@ export default class ViewLogic {
                 if (this.curGroupId !== id) {
                     this.drawByGroupIdList(id);
                     this.curGroupId = id;
+                    this.showSelected();
                 }
             }
         })
@@ -124,13 +145,57 @@ export default class ViewLogic {
                 $(e.currentTarget).val(curVal);
                 this.hint('内容必须以字母开头，除了_不可以有其它特殊字符!');
             }
-            console.log($(e.currentTarget).val())
         })
 
-        //根目录列表点击事件==>双击
+
+        //根目录列表点击事件==>双击  添加数据到下列
         this.rootList.on('dblclick', 'dd', (e) => {
             if (e.currentTarget) {
                 this.addDataList(e.currentTarget.getAttribute('data-id'));
+            }
+        })
+
+        //删除已经缓存数据 根目录点击事件
+        this.rootList.on('click', '.delete', (e) => {
+            if (e.currentTarget) {
+                this.clearItemBtId(e.currentTarget.getAttribute('data-id'))
+            }
+        })
+        this.myListNode.on('click', '.delete', (e) => {
+            if (e.currentTarget) {
+                this.clearItemBtId(e.currentTarget.getAttribute('data-id'))
+            }
+        })
+
+        //资源类型修改
+        this.myListNode.on('change', 'select', (e) => {
+            if (e.currentTarget) {
+                if (this.curGroupId) this.dataManager.groupList.get(this.curGroupId)!.get(e.currentTarget.getAttribute('data-id'))!.type = e.currentTarget.value;
+            }
+        })
+
+        //根据目录筛选
+        $('#dirSelect').on('change', (e: any) => {
+            if (e.currentTarget) {
+                let val = e.currentTarget.value;
+                if (val === 'All') {
+                    this.rootList.find('dd').show();
+                    return;
+                }
+                this.rootList.find('dd').hide();
+                this.rootList.find('.path').each((e, m) => {
+                    if ($(m).text().indexOf(val) > -1) {
+                        $(m).parents('dd').show();
+                    }
+                })
+            }
+        })
+
+        //保存
+        window.addEventListener('keydown', (e) => {
+            if (e.keyCode == 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) {//ctrl+s
+                e.preventDefault();
+                this.saveJson();
             }
         })
 
@@ -141,26 +206,17 @@ export default class ViewLogic {
      * @param id 资源id
      */
     private addDataList(id: string) {
-        let rootData = this.dataManager.rootResList.get(id);//获取根目录数据
-        if (rootData) {
-            let obj = this.dataManager.groupList.get(this.curGroupId);
-
-            if (obj && !obj.get(id)) {
-                obj.set(id, {
-                    resName: rootData.name,
-                    type: rootData.type,
-                    path: rootData.path
-                });
-                this.drawItem(obj.get(id)!);
-            }
-
-        }
+        this.drawItem(this.dataManager.addItmeByGroupId(id, this.curGroupId)!);
+        this.showSelected();
     }
 
     /**
      * 渲染一条数据到前端
      */
     private drawItem(obj: resObj) {
+        if (!obj) {
+            return;
+        }
         //绑定类型
         let typeStr: string = '';
         this.dataManager.allType.forEach((v) => {
@@ -170,9 +226,9 @@ export default class ViewLogic {
         this.myListNode.prepend(`<dd data-id=${obj.path}>
         <div class="g0 resName">${obj.resName}</div>
         <div class="g0 resType select is-small">
-            <select>${typeStr}</select>
+            <select data-id=${obj.path}>${typeStr}</select>
         </div>
-        <div class="g1">${obj.path}</div>
+        <div class="g1"><a data-id=${obj.path} class="delete is-small"></a>${obj.path}</div>
         <div class="g0 annotation">
             <input class="input is-small" type="text" value="${obj.note ? obj.note : ''}" placeholder="注释">
         </div>
@@ -196,10 +252,13 @@ export default class ViewLogic {
 
         this.groupListNode.append(`<dd data-id=${this.curGroupId} class="tag g1 is-white cur ${type ? 'replaceGroupName' : ''}">
         <input  disabled class="input is-small groupName" type="text" placeholder="Group name" value="${name}">
-        ${type ? ' <button class="delete is-small"></button>' : ''}
+        ${type ? ' <button data-id=' + this.curGroupId + ' class="delete is-small"></button>' : ''}
     </dd>`);
 
         this.drawByGroupIdList(this.curGroupId);
+
+        this.showSelected();
+        this.groupId++;
     }
 
     /**
@@ -213,7 +272,8 @@ export default class ViewLogic {
             list.forEach((val) => {
                 this.drawItem(val);
             })
-            console.log(list)
+            console.log(list);
+
         }
     }
 
@@ -243,16 +303,35 @@ export default class ViewLogic {
         let html = '',
             list = this.dataManager.rootResList;
 
+        //this.dataManager.root + 
         list.forEach((val, key) => {
-            html += `<dd data-id=${key} data-type=${val.type}>
+            html += `<dd data-id=${key} data-type=${val.type} title=${val.name}>
                 <div class="g0 resName">${val.name}</div>
                 <div class="g0 resType">${val.type}</div>
-                <div class="g1">${this.dataManager.root + val.path} <a class="delete is-small"></a></div>
+                <div class="g1"><a data-id=${key} class="delete rootDel is-small"></a><span class="path">${val.path}</span></div>
                 <div class="g0 size_me">${this.convertFileSize(val.size)}</div>
-            </dd>`
+            </dd>`;
         })
 
         this.rootList.html(html);
+
+        //渲染目录
+        $('#dirSelect').html('');
+        html = '<option selected>All</option>';
+        this.dataManager.dirNames.forEach((val) => {
+            html += `<option>${val}</option>`;
+        })
+        $('#dirSelect').html(html);
+    }
+
+    /**
+     * 通过绝对地址id删除
+     * @param id 资源id
+     */
+    private clearItemBtId(id: string) {
+        this.dataManager.deleteItemByGroupId(id, this.curGroupId);
+        this.showSelected();
+        this.drawByGroupIdList(this.curGroupId);//需要优化
     }
 
     /**
@@ -275,6 +354,14 @@ export default class ViewLogic {
                     this.dataManager.allType.add(name[1]);//重复一直添加类型 保证类型唯一性
 
                     let myPath = (path + '/' + files[x]).replace(this.dataManager.root + '', '');
+
+                    let dir = myPath.split('/'),
+                        newDir = "";
+                    for (let x = 0, l = dir.length - 1; x < l; x++) {
+                        newDir += dir[x] + '/';
+                    }
+                    this.dataManager.dirNames.add(newDir);
+
                     this.dataManager.rootResList.set(myPath, {
                         name: name.join('_'),
                         path: myPath,
@@ -301,13 +388,46 @@ export default class ViewLogic {
     /**
      * 提示
      */
-    private hint(str: string) {
+    private hint(str: string, time: number = 2000) {
         let hintView = $('#hintView');
         hintView.show();
         hintView.text(str);
         if (this.hintTime) clearTimeout(this.hintTime);
         this.hintTime = setTimeout(() => {
             hintView.fadeOut(300);
-        }, 2000)
+        }, time)
     }
+    /**
+     * 根据已经选择的列表，在根目录列表中显示出来
+     */
+    private showSelected() {
+        let list = this.rootList.find('dd') as JQuery<HTMLElement>,
+            group = this.dataManager.groupList.get(this.curGroupId)!,
+            l = list.length,
+            dd: JQuery<HTMLElement>;
+
+        list.removeClass('cur');
+        if (group) {
+            group.forEach((v, k) => {
+                for (let x = 0; x < l; x++) {
+                    dd = list.eq(x);
+                    if (dd) {
+                        if (dd.attr('data-id') === k) {
+                            dd.addClass('cur');
+                            break;
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    /**
+     * 保存为json
+     */
+    private saveJson() {
+        this.hint('保存成功', 600);
+        this.dataManager.getJsonData();
+    }
+
 }

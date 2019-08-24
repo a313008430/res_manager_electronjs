@@ -9,9 +9,9 @@ export default {
     plugins: [
         // typescript({ lib: ["es5", "es6", "dom"], target: "esnext", sourceMap: true }),
         typescript({ tsconfig: "./tsconfig.json" }),
-        uglify({
-            toplevel: true,//变量名也会压缩 高级压缩，如报错可取消
-        })
+        // uglify({
+        //     // toplevel: true,//变量名也会压缩 高级压缩，如报错可取消
+        // })
         // server({
         //     host:'192.168.1.3',
         //     port:888,

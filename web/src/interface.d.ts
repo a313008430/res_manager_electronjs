@@ -4,7 +4,7 @@ interface resObj {
     resName: string,
     /** 类型 */
     type: string,
-    /** 路径 */
+    /** 路径 => 唯一id */
     path: string,
     /** 注释 */
     note?: string

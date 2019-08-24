@@ -15,9 +15,13 @@ export default class DataManager {
     groupNameList: Map<number, string>;
     /** 递增的组id */
     private groupId: number;
+    /** 缓存数据列表 => 所有组的数据合 => 这里貌似可以优化下数据结构 */
+    allItemList: Set<resObj>;
 
     /** 根目录数据列表 */
     rootResList: Map<string, rootListObj>;
+    /** 根目录下所有资源目录名称 */
+    dirNames: Set<string>;
 
     constructor() {
         this.groupId = 0;
@@ -25,6 +29,8 @@ export default class DataManager {
         this.groupList = new Map();
         this.allType = new Set();
         this.groupNameList = new Map();
+        this.dirNames = new Set();
+        this.allItemList = new Set();
     }
 
     /**
@@ -57,6 +63,42 @@ export default class DataManager {
     }
 
     /**
+     * 向某组里添加一条数据
+     * @param id 根目录内的id
+     * @param groupId 组id
+     */
+    addItmeByGroupId(id: string, groupId: number): resObj | null {
+        let rootData = this.rootResList.get(id);//获取根目录数据
+        if (rootData) {
+            let obj = this.groupList.get(groupId);
+
+            if (obj && !obj.get(id)) {
+                let resObj: resObj = {
+                    resName: rootData.name,
+                    type: rootData.type,
+                    path: rootData.path
+                };
+                obj.set(id, resObj);
+                return resObj;
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * 从某组中删除一条数据
+     * @param id 根目录内的id
+     * @param groupId 组id
+     */
+    deleteItemByGroupId(id: string, groupId: number) {
+        let rootData = this.groupList.get(groupId)!;//获取根目录数据
+        if (rootData) {
+            rootData.delete(id);
+        }
+    }
+
+    /**
      * 修改组名称
      */
     replaceGroupName(id: number, name: string): string | null {
@@ -71,10 +113,44 @@ export default class DataManager {
      * 获取组名称
      */
     getGroupName(name: string) {
-        let n:string = '';
+        let n: string = '';
         this.groupNameList.forEach((val: string) => {
             if (name === val) n = val;
         })
         return n;
     }
+
+    /**
+     * 获取所有资源列表 导出到json时用 唯一性
+     */
+    getJsonData() {
+        let allList: resObj[],
+            jsonData: {
+                group: {
+                    test:any[]
+                },
+                all: resObj[]
+            }= {
+                all:[],
+                group:[]
+            };
+        this.groupList.forEach((v, k) => {
+            jsonData.group.push({name:this.groupNameList.get(k)!, list:[]})
+            v.forEach((mv) => {
+                jsonData.group[]
+                if(!this.allItemList.has(mv)){
+                    jsonData.all.push(mv);
+                }
+                this.allItemList.add(mv);
+            })
+        })
+        console.log(this.allItemList)
+        console.log(jsonData)
+    }
+
+
+    /**
+     * TODO 需要优化缓存的数据结构，不然不方便导成为json
+     * 结果在resObj的基本上添加上分组id 然后整体直接导入为json
+     */
 }

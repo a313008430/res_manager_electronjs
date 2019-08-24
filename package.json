@@ -4,8 +4,9 @@
   "description": "资源管理",
   "main": "app/main.js",
   "scripts": {
-    "start": "rollup -c && electron .",
-    "w": "rollup -cw"
+    "start": "rollup -c && tsc -b tsconfig_worker.json && electron .",
+    "w": "rollup -cw",
+    "tscw": "tsc -b tsconfig_worker.json -w"
   },
   "repository": {
     "type": "git",

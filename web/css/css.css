@@ -90,6 +90,31 @@ body {
     cursor: pointer;
 }
 
+.centerView dd:hover>div{
+    border-right: 1px solid #b2e6df;
+    color: #000;
+}
+
+.centerView dd.cur{
+    border-bottom: 1px solid #b2e6df;
+    background: #00d1b2;
+    cursor: pointer;
+}
+.centerView dd.cur div{
+    border-right: 1px solid #00d1b2;
+    color: #000;
+}
+.centerView dd .rootDel{
+    display: none;
+}
+
+.centerView dd.cur div a.rootDel{
+    display: inline-block;
+}
+
+
+
+
 .centerView .list-title{
     width: 100%;
     height: 30px;
@@ -116,10 +141,6 @@ body {
     color: #828282
 }
 
-.centerView dd:hover>div{
-    border-right: 1px solid #b2e6df;
-    color: #000;
-}
 
 .resName{width: 150px;}
 .resType{width: 100px;}
@@ -143,4 +164,8 @@ body {
 
 .hintView{width: 80%;height: 40px;text-align: center;position: absolute;left: 15%;right: 15%;background: rgba(0,0,0,0.2);top: 50%;
 color: red;border-radius: 3px;display: none;font-size: 26px;
+}
+
+.hide{
+    display: none;
 }
