@@ -124,25 +124,29 @@ export default class DataManager {
      * 获取所有资源列表 导出到json时用 唯一性
      */
     getJsonData() {
-        let allList: resObj[],
-            jsonData: {
-                group: {
-                    test:any[]
-                },
+        let jsonData: {
+                groups: { name: string, ids: string[]}[],
                 all: resObj[]
-            }= {
-                all:[],
-                group:[]
+            } = {
+                all: [],
+                groups: []
             };
         this.groupList.forEach((v, k) => {
-            jsonData.group.push({name:this.groupNameList.get(k)!, list:[]})
+
+            // jsonData.group.push({name:this.groupNameList.get(k)!, list:[]})
+            let gorup:{ name: string, ids: string[]} = {
+                name:this.groupNameList.get(k)!,
+                ids:[]
+            }
+
             v.forEach((mv) => {
-                jsonData.group[]
-                if(!this.allItemList.has(mv)){
+                gorup.ids.push(mv.resName);
+                if (!this.allItemList.has(mv)) {
                     jsonData.all.push(mv);
                 }
                 this.allItemList.add(mv);
             })
+            jsonData.groups.push(gorup);
         })
         console.log(this.allItemList)
         console.log(jsonData)
