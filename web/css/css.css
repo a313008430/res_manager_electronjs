@@ -149,6 +149,7 @@ body {
 .leftView{
     width: 150px;
     margin-right: 5px;
+    min-width: 150px;
 }
 
 #previewImg{
@@ -168,4 +169,7 @@ color: red;border-radius: 3px;display: none;font-size: 26px;
 
 .hide{
     display: none;
+}
+#export{
+    margin-left: 10px;
 }

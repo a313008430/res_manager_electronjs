@@ -31,17 +31,38 @@ export default class DataManager {
         this.groupNameList = new Map();
         this.dirNames = new Set();
         this.allItemList = new Set();
+        this.allItemList = new Set();
+    }
+
+    /**
+     * 清除所有缓存数据
+     */
+    clearAll() {
+        this.groupId = 0;
+        this.rootResList.clear();
+        this.groupList.clear();
+        this.allType.clear();
+        this.groupNameList.clear();
+        this.allItemList.clear();
     }
 
     /**
      * 添加一组
      * @param name 组名称
+     * @param items 对应组列表数据
      * @returns 返回生成的组id
      */
-    addGroup(name: string): number {
+    addGroup(name: string, items?: resObj[]): number {
         this.groupId++;
         this.groupList.set(this.groupId, new Map());
         this.groupNameList.set(this.groupId, name);
+
+        if (items) {
+            for (let x = 0, l = items.length; x < l; x++) {
+                this.addItmeByGroupId(null, this.groupId, items[x]);
+            }
+        }
+
         return this.groupId;
     }
 
@@ -66,23 +87,28 @@ export default class DataManager {
      * 向某组里添加一条数据
      * @param id 根目录内的id
      * @param groupId 组id
+     * @param resObj 要存的数据
      */
-    addItmeByGroupId(id: string, groupId: number): resObj | null {
-        let rootData = this.rootResList.get(id);//获取根目录数据
-        if (rootData) {
-            let obj = this.groupList.get(groupId);
+    addItmeByGroupId(id: string | null, groupId: number, resObj?: resObj): resObj | null {
+        let obj = this.groupList.get(groupId);
+        if (id) {
+            let rootData = this.rootResList.get(id);//获取根目录数据
+            if (rootData) {
+                if (obj && !obj.get(id)) {
+                    let resObj: resObj = {
+                        resName: rootData.name,
+                        type: rootData.type,
+                        path: rootData.path
+                    };
+                    obj.set(id, resObj);
+                    return resObj;
+                }
 
-            if (obj && !obj.get(id)) {
-                let resObj: resObj = {
-                    resName: rootData.name,
-                    type: rootData.type,
-                    path: rootData.path
-                };
-                obj.set(id, resObj);
-                return resObj;
             }
-
+        } else if (resObj) {
+            if (obj) obj.set(resObj.path, resObj);
         }
+
         return null;
     }
 
@@ -95,6 +121,19 @@ export default class DataManager {
         let rootData = this.groupList.get(groupId)!;//获取根目录数据
         if (rootData) {
             rootData.delete(id);
+        }
+    }
+
+    /**
+     * 修改某条数据的注释
+     * @param id 单条数据id
+     * @param groupId 组id
+     * @param value 注释内容
+     */
+    replaceNote(id: string, groupId: number, value: string) {
+        let items = this.groupList.get(groupId)!;//获取根目录数据
+        if (items) {
+            items.get(id)!.note = value;
         }
     }
 
@@ -125,31 +164,36 @@ export default class DataManager {
      */
     getJsonData() {
         let jsonData: {
-                groups: { name: string, ids: string[]}[],
-                all: resObj[]
-            } = {
-                all: [],
-                groups: []
-            };
+            groups: { name: string, items: resObj[] }[],
+            all: resObj[]
+        } = {
+            all: [],
+            groups: []
+        };
         this.groupList.forEach((v, k) => {
 
             // jsonData.group.push({name:this.groupNameList.get(k)!, list:[]})
-            let gorup:{ name: string, ids: string[]} = {
-                name:this.groupNameList.get(k)!,
-                ids:[]
+            let gorup: { name: string, items: resObj[] } = {
+                name: this.groupNameList.get(k)!,
+                items: []
             }
-
+            let resObjInAll: resObj;
             v.forEach((mv) => {
-                gorup.ids.push(mv.resName);
-                if (!this.allItemList.has(mv)) {
-                    jsonData.all.push(mv);
+                gorup.items.push(mv);
+                resObjInAll = {
+                    resName: mv.resName,
+                    type: mv.type,
+                    path: mv.path
                 }
-                this.allItemList.add(mv);
+                if (!this.allItemList.has(resObjInAll)) {
+                    jsonData.all.push(resObjInAll);
+                }
+                this.allItemList.add(resObjInAll);
             })
             jsonData.groups.push(gorup);
         })
-        console.log(this.allItemList)
         console.log(jsonData)
+        return jsonData;
     }
 
 

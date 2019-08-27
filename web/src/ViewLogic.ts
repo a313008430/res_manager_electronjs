@@ -16,6 +16,8 @@ export default class ViewLogic {
     private myListNode: JQuery<HTMLElement>;
     /** 根目录列表节点 */
     private rootList: JQuery<HTMLElement>;
+    /** 图片预览节点 */
+    private previewImg: JQuery<HTMLImageElement>;
 
 
     /** 数据管理 */
@@ -26,14 +28,17 @@ export default class ViewLogic {
     private initGroup: string;
     /** hint定时器 */
     private hintTime: any;
-    /** 组递增id */
+    /** 组递增id=>用于名称添加 */
     private groupId: number;
+    /** json文件路径 */
+    private jsonFilePath: string;
 
 
     constructor() {
-        this.groupId = 1;
 
         this.initGroup = 'init';
+
+        this.groupId = 1;
 
         this.dataManager = new DataManager();
 
@@ -42,10 +47,10 @@ export default class ViewLogic {
         this.addGroupBtn = $('#addGroupBtn');
         this.myListNode = $('#myListNode');
         this.rootList = $('#rootList');
+        this.previewImg = $('#previewImg');
 
         //添加根目录资源点击事件
         this.browseBtn.addEventListener('change', (e: Event) => {
-
             let file: any = (this.browseBtn.files as FileList).item(0) as File;
             if (file.type === "application/json") {
 
@@ -55,10 +60,12 @@ export default class ViewLogic {
                 pathArr.splice(pathArr.length - 2, 2);
                 let rootPath: string = pathArr.join('/') + '/assets/resources'
                 this.setRootPath(rootPath);
+                this.jsonFilePath = file.path;
 
                 //验证根目录是否存在
                 if (fs.existsSync(rootPath)) {
 
+                    this.dataManager.clearAll();
                     this.clear();
 
                     this.dataManager.root = rootPath;
@@ -69,7 +76,8 @@ export default class ViewLogic {
                     let resData = fs.readFileSync(file.path).toString();
                     if (resData.length) {
                         resData = JSON.parse(resData);
-
+                        this.drawByJson(resData);
+                        console.log('渲染JSON文件里面数据')
                     } else {
                         console.log('json文件为空');
                         this.addGroup(this.initGroup, false);
@@ -82,6 +90,7 @@ export default class ViewLogic {
             } else {
                 alert('The format must be JSON!')
             }
+            this.browseBtn.value = '';
             // this.setRootPath(file)
             console.log(file);
         })
@@ -110,7 +119,7 @@ export default class ViewLogic {
 
         })
 
-        // 组名称点击事件
+        // 组名称点击事件 切换组列表
         this.groupListNode.on('click', 'dd', (e) => {
             if (e.currentTarget) {
                 $(e.currentTarget).addClass('cur').siblings().removeClass('cur');
@@ -134,13 +143,13 @@ export default class ViewLogic {
             }
         })
 
-        this.groupListNode.on('focusout blur', 'input', (e) => {
+        this.groupListNode.on('blur', 'input', (e) => {//focusout 
             $(e.currentTarget).attr('disabled', 'disabled');
             // $(e.currentTarget).off();
             let val: any = $(e.currentTarget).val();
             if (val.match(/^[A-z]/) && !val.match(/[^A-z0-9\_]/)) {
-                console.log('1231232可以开始')
-
+                console.log('组名称id:' + $(e.currentTarget).parent('dd').attr('data-id') + '=>' + val);
+                this.dataManager.replaceGroupName(Number($(e.currentTarget).parent('dd').attr('data-id')), val)
             } else {
                 $(e.currentTarget).val(curVal);
                 this.hint('内容必须以字母开头，除了_不可以有其它特殊字符!');
@@ -151,7 +160,15 @@ export default class ViewLogic {
         //根目录列表点击事件==>双击  添加数据到下列
         this.rootList.on('dblclick', 'dd', (e) => {
             if (e.currentTarget) {
+                //向列表中添加一条数据
                 this.addDataList(e.currentTarget.getAttribute('data-id'));
+            }
+        });
+        //图片预览
+        this.rootList.on('click', 'dd', (e) => {
+            let id = e.currentTarget.getAttribute('data-id');
+            if (id.indexOf('.png') > -1 || id.indexOf('.jpg') > -1 || id.indexOf('.jpeg') > -1 ) {
+                this.previewImg[0].src = this.dataManager.root + id;
             }
         })
 
@@ -199,6 +216,27 @@ export default class ViewLogic {
             }
         })
 
+        //添加注释功能
+        this.myListNode.on('blur', 'input', (e: any) => {
+            let id = e.currentTarget.getAttribute('data-id');
+            this.dataManager.replaceNote(id, this.curGroupId, e.currentTarget.value);
+        })
+
+    }
+
+    /**
+     * 通过json文件渲染
+     * @param data json文件数据
+     */
+    private drawByJson(data: any) {
+        console.log(data);
+        let groups = data['groups'],
+            l = groups.length,
+            x = 0;
+        for (; x < l; x++) {
+            this.addGroup(groups[x].name, groups[x].name !== "init", groups[x].items)
+        }
+
     }
 
     /**
@@ -222,7 +260,6 @@ export default class ViewLogic {
         this.dataManager.allType.forEach((v) => {
             typeStr += `<option ${obj.type === v ? 'selected' : ''}>${v}</option>`;
         });
-
         this.myListNode.prepend(`<dd data-id=${obj.path}>
         <div class="g0 resName">${obj.resName}</div>
         <div class="g0 resType select is-small">
@@ -230,7 +267,7 @@ export default class ViewLogic {
         </div>
         <div class="g1"><a data-id=${obj.path} class="delete is-small"></a>${obj.path}</div>
         <div class="g0 annotation">
-            <input class="input is-small" type="text" value="${obj.note ? obj.note : ''}" placeholder="注释">
+            <input data-id=${obj.path} class="input is-small" type="text" value="${obj.note ? obj.note : ''}" placeholder="注释">
         </div>
     </dd>`);
     }
@@ -240,13 +277,13 @@ export default class ViewLogic {
      * @param name 组名字
      * @param type 是否可修改和删除 true 可修改 false 不可修改
      */
-    private addGroup(name: string, type: boolean) {
+    private addGroup(name: string, type: boolean, items?: resObj[]) {
         if (this.dataManager.getGroupName(name)) {
             alert('分组名称已经存在');
             return;
         }
 
-        this.curGroupId = this.dataManager.addGroup(name);
+        this.curGroupId = this.dataManager.addGroup(name, items);
 
         this.groupListNode.find('dd').removeClass('cur');
 
@@ -272,7 +309,6 @@ export default class ViewLogic {
             list.forEach((val) => {
                 this.drawItem(val);
             })
-            console.log(list);
 
         }
     }
@@ -303,7 +339,7 @@ export default class ViewLogic {
         let html = '',
             list = this.dataManager.rootResList;
 
-        //this.dataManager.root + 
+
         list.forEach((val, key) => {
             html += `<dd data-id=${key} data-type=${val.type} title=${val.name}>
                 <div class="g0 resName">${val.name}</div>
@@ -427,7 +463,8 @@ export default class ViewLogic {
      */
     private saveJson() {
         this.hint('保存成功', 600);
-        this.dataManager.getJsonData();
+        let data = this.dataManager.getJsonData();
+        fs.writeFileSync(this.jsonFilePath, JSON.stringify(data));
     }
 
 }
