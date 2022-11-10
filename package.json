@@ -20,7 +20,7 @@
   "homepage": "https://github.com/a313008430/res_manager_electronjs#readme",
   "devDependencies": {
     "@types/jquery": "^3.3.31",
-    "electron": "^6.0.3",
+    "electron": "^18.3.7",
     "rollup": "^1.19.4",
     "rollup-plugin-typescript2": "^0.22.1",
     "rollup-plugin-uglify-es": "^0.0.1",
